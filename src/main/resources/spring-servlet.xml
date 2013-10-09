@@ -6,50 +6,23 @@
 		http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security-3.2.xsd
 		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd">
 
-	<alias alias="org.springframework.security.authenticationManager" name="authenticationManager"/>
-
 	<oauth:authorization-server
 		client-details-service-ref="clientDetails" token-services-ref="tokenServices">
 		<oauth:authorization-code />
 		<oauth:implicit />
 		<oauth:refresh-token />
 		<oauth:client-credentials />
-		<oauth:password />
+		<oauth:password authentication-manager-ref="authenticationManager"/>
 	</oauth:authorization-server>
-
-	<oauth:resource-server id="resourceServerFilter"
-		resource-id="sparklr" token-services-ref="tokenServices" />
 
 	<oauth:client-details-service id="clientDetails">
 		<oauth:client client-id="my-trusted-client"
 			authorized-grant-types="password,authorization_code,refresh_token,implicit"
 			authorities="ROLE_CLIENT, ROLE_TRUSTED_CLIENT" scope="read,write,trust"
 			access-token-validity="60" />
-		<oauth:client client-id="my-trusted-client-with-secret"
-			authorized-grant-types="password,authorization_code,refresh_token,implicit"
-			secret="somesecret" authorities="ROLE_CLIENT, ROLE_TRUSTED_CLIENT" />
 		<oauth:client client-id="my-client-with-secret"
 			authorized-grant-types="client_credentials" authorities="ROLE_CLIENT"
 			scope="read" secret="secret" />
-		<oauth:client client-id="my-less-trusted-client"
-			authorized-grant-types="authorization_code,implicit" authorities="ROLE_CLIENT" />
-		<oauth:client client-id="my-less-trusted-autoapprove-client"
-			authorized-grant-types="implicit" authorities="ROLE_CLIENT" scope="read,write,trust"
-			autoapprove="true" />
-		<oauth:client client-id="my-client-with-registered-redirect"
-			authorized-grant-types="authorization_code,client_credentials"
-			authorities="ROLE_CLIENT" redirect-uri="http://anywhere?key=value"
-			scope="read,trust" />
-		<oauth:client client-id="my-untrusted-client-with-registered-redirect"
-			authorized-grant-types="authorization_code" authorities="ROLE_CLIENT"
-			redirect-uri="http://anywhere" scope="read" />
-		<oauth:client client-id="tonr" resource-ids="sparklr"
-			authorized-grant-types="authorization_code,implicit" authorities="ROLE_CLIENT"
-			scope="read,write" secret="secret" />
-		<oauth:client client-id="tonr-with-redirect"
-			resource-ids="sparklr" authorized-grant-types="authorization_code,implicit"
-			authorities="ROLE_CLIENT" scope="read,write" secret="secret"
-			redirect-uri="${tonr.redirect:http://localhost:8080/tonr2/sparklr/redirect}" />
 	</oauth:client-details-service>
 
 </beans>

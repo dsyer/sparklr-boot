@@ -18,13 +18,10 @@ import org.springframework.security.config.annotation.ObjectPostProcessor;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.authentication.configurers.provisioning.InMemoryUserDetailsManagerConfigurer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.oauth2.provider.ClientDetailsService;
-import org.springframework.security.oauth2.provider.DefaultOAuth2RequestFactory;
-import org.springframework.security.oauth2.provider.OAuth2RequestFactory;
-import org.springframework.security.oauth2.provider.approval.ApprovalStore;
-import org.springframework.security.oauth2.provider.approval.TokenApprovalStore;
 import org.springframework.security.oauth2.provider.client.ClientCredentialsTokenEndpointFilter;
 import org.springframework.security.oauth2.provider.client.ClientDetailsUserDetailsService;
 import org.springframework.security.oauth2.provider.error.OAuth2AccessDeniedHandler;
@@ -38,6 +35,7 @@ import org.springframework.security.web.authentication.www.BasicAuthenticationFi
 @EnableAutoConfiguration
 @ImportResource("classpath:/spring-servlet.xml")
 @Order(Ordered.LOWEST_PRECEDENCE - 100)
+@EnableWebSecurity
 public class Application extends WebSecurityConfigurerAdapter {
 
 	@Autowired
@@ -50,18 +48,20 @@ public class Application extends WebSecurityConfigurerAdapter {
 	@Override
 	protected void configure(HttpSecurity http) throws Exception {
 
+		http.userDetailsService(new ClientDetailsUserDetailsService(
+				clientDetailsService));
 		http.exceptionHandling().authenticationEntryPoint(
 				oauthAuthenticationEntryPoint());
-		http.requestMatchers().antMatchers("/ouath/token");
+		http.requestMatchers().antMatchers("/oauth/token");
 		http.authorizeRequests().anyRequest().authenticated()//
 				.and().httpBasic() //
 				.and().anonymous().disable();
-		http.exceptionHandling().accessDeniedHandler(oauthAccessDeniedHandler());
+		http.exceptionHandling().accessDeniedHandler(
+				new OAuth2AccessDeniedHandler());
 		http.sessionManagement().sessionCreationPolicy(
 				SessionCreationPolicy.STATELESS);
 		http.addFilterAfter(clientCredentialsTokenEndpointFilter(),
 				BasicAuthenticationFilter.class);
-		http.userDetailsService(new ClientDetailsUserDetailsService(clientDetailsService));
 
 	}
 
@@ -81,12 +81,7 @@ public class Application extends WebSecurityConfigurerAdapter {
 	}
 
 	@Bean
-	public OAuth2AccessDeniedHandler oauthAccessDeniedHandler() {
-		return new OAuth2AccessDeniedHandler();
-	}
-
-	@Bean
-	public ClientCredentialsTokenEndpointFilter clientCredentialsTokenEndpointFilter() {
+	protected ClientCredentialsTokenEndpointFilter clientCredentialsTokenEndpointFilter() {
 		ClientCredentialsTokenEndpointFilter clientCredentialsTokenEndpointFilter = new ClientCredentialsTokenEndpointFilter();
 		clientCredentialsTokenEndpointFilter
 				.setAuthenticationManager(clientAuthenticationManager());
@@ -104,7 +99,7 @@ public class Application extends WebSecurityConfigurerAdapter {
 	}
 
 	@Bean
-	public TokenStore tokenStore() {
+	protected TokenStore tokenStore() {
 		return new InMemoryTokenStore();
 	}
 
@@ -118,18 +113,6 @@ public class Application extends WebSecurityConfigurerAdapter {
 	}
 
 	@Bean
-	public OAuth2RequestFactory requestFactory() {
-		return new DefaultOAuth2RequestFactory(clientDetailsService);
-	}
-
-	@Bean
-	public ApprovalStore approvalStore() {
-		TokenApprovalStore store = new TokenApprovalStore();
-		store.setTokenStore(tokenStore());
-		return store;
-	}
-
-	@Bean
 	public AuthenticationManager authenticationManager() throws Exception {
 
 		InMemoryUserDetailsManagerConfigurer<AuthenticationManagerBuilder> builder = new AuthenticationManagerBuilder(
@@ -139,5 +122,5 @@ public class Application extends WebSecurityConfigurerAdapter {
 		return builder.and().build();
 
 	}
-	
+
 }
