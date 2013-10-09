@@ -10,15 +10,10 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.ImportResource;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
-import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
-import org.springframework.security.config.annotation.ObjectPostProcessor;
-import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
-import org.springframework.security.config.annotation.authentication.configurers.provisioning.InMemoryUserDetailsManagerConfigurer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.oauth2.provider.ClientDetailsService;
@@ -35,7 +30,6 @@ import org.springframework.security.web.authentication.www.BasicAuthenticationFi
 @EnableAutoConfiguration
 @ImportResource("classpath:/spring-servlet.xml")
 @Order(Ordered.LOWEST_PRECEDENCE - 100)
-@EnableWebSecurity
 public class Application extends WebSecurityConfigurerAdapter {
 
 	@Autowired
@@ -83,19 +77,15 @@ public class Application extends WebSecurityConfigurerAdapter {
 	@Bean
 	protected ClientCredentialsTokenEndpointFilter clientCredentialsTokenEndpointFilter() {
 		ClientCredentialsTokenEndpointFilter clientCredentialsTokenEndpointFilter = new ClientCredentialsTokenEndpointFilter();
-		clientCredentialsTokenEndpointFilter
-				.setAuthenticationManager(clientAuthenticationManager());
-		return clientCredentialsTokenEndpointFilter;
-	}
-
-	@Bean
-	protected AuthenticationManager clientAuthenticationManager() {
 		DaoAuthenticationProvider authenticationProvider = new DaoAuthenticationProvider();
 		ClientDetailsUserDetailsService clientUserDetailsService = new ClientDetailsUserDetailsService(
 				clientDetailsService);
 		authenticationProvider.setUserDetailsService(clientUserDetailsService);
-		return new ProviderManager(
+		ProviderManager providerManager = new ProviderManager(
 				Arrays.<AuthenticationProvider> asList(authenticationProvider));
+		clientCredentialsTokenEndpointFilter
+				.setAuthenticationManager(providerManager);
+		return clientCredentialsTokenEndpointFilter;
 	}
 
 	@Bean
@@ -110,17 +100,6 @@ public class Application extends WebSecurityConfigurerAdapter {
 		tokenServices.setSupportRefreshToken(true);
 		tokenServices.setTokenStore(tokenStore());
 		return tokenServices;
-	}
-
-	@Bean
-	public AuthenticationManager authenticationManager() throws Exception {
-
-		InMemoryUserDetailsManagerConfigurer<AuthenticationManagerBuilder> builder = new AuthenticationManagerBuilder(
-				ObjectPostProcessor.QUIESCENT_POSTPROCESSOR)
-				.inMemoryAuthentication();
-		builder.withUser("marissa").password("koala").roles("USER");
-		return builder.and().build();
-
 	}
 
 }
