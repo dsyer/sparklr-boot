@@ -25,6 +25,7 @@ import org.springframework.security.oauth2.provider.token.DefaultTokenServices;
 import org.springframework.security.oauth2.provider.token.InMemoryTokenStore;
 import org.springframework.security.oauth2.provider.token.TokenStore;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
 @ComponentScan
 @EnableAutoConfiguration
@@ -43,28 +44,28 @@ public class Application extends WebSecurityConfigurerAdapter {
 	protected void configure(HttpSecurity http) throws Exception {
 
 		// This filter has it's own client-specific authentication manager
+		// @formatter:off
 		http.userDetailsService(new ClientDetailsUserDetailsService(
-				clientDetailsService));
-		http.exceptionHandling().authenticationEntryPoint(
-				oauthAuthenticationEntryPoint());
-		http.requestMatchers().antMatchers("/oauth/token");
-		http.authorizeRequests().anyRequest().authenticated()//
+				clientDetailsService))
+			.exceptionHandling().authenticationEntryPoint(
+				clientAuthenticationEntryPoint())
+		.and()
+			.requestMatchers().antMatchers("/oauth/token")
+		.and()
+		    .authorizeRequests().anyRequest().authenticated()//
 				.and().httpBasic() //
-				.and().anonymous().disable();
-		http.exceptionHandling().accessDeniedHandler(
-				new OAuth2AccessDeniedHandler());
-		http.sessionManagement().sessionCreationPolicy(
-				SessionCreationPolicy.STATELESS);
-		http.addFilterAfter(clientCredentialsTokenEndpointFilter(),
+				.and().anonymous().disable()
+			.exceptionHandling().accessDeniedHandler(
+				new OAuth2AccessDeniedHandler())
+		.and()
+		    .sessionManagement().sessionCreationPolicy(
+				SessionCreationPolicy.STATELESS)
+		.and()
+			.csrf().requireCsrfProtectionMatcher(new AntPathRequestMatcher("/oauth/**")).disable()
+		    .addFilterAfter(clientCredentialsTokenEndpointFilter(),
 				BasicAuthenticationFilter.class);
+		// @formatter:on
 
-	}
-
-	@Bean
-	public OAuth2AuthenticationEntryPoint oauthAuthenticationEntryPoint() {
-		OAuth2AuthenticationEntryPoint entryPoint = new OAuth2AuthenticationEntryPoint();
-		entryPoint.setRealmName("sparklr2");
-		return entryPoint;
 	}
 
 	@Bean
