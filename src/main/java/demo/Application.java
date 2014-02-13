@@ -42,6 +42,7 @@ public class Application extends WebSecurityConfigurerAdapter {
 	@Override
 	protected void configure(HttpSecurity http) throws Exception {
 
+		// This filter has it's own client-specific authentication manager
 		http.userDetailsService(new ClientDetailsUserDetailsService(
 				clientDetailsService));
 		http.exceptionHandling().authenticationEntryPoint(
@@ -77,14 +78,13 @@ public class Application extends WebSecurityConfigurerAdapter {
 	@Bean
 	protected ClientCredentialsTokenEndpointFilter clientCredentialsTokenEndpointFilter() {
 		ClientCredentialsTokenEndpointFilter clientCredentialsTokenEndpointFilter = new ClientCredentialsTokenEndpointFilter();
-		DaoAuthenticationProvider authenticationProvider = new DaoAuthenticationProvider();
-		ClientDetailsUserDetailsService clientUserDetailsService = new ClientDetailsUserDetailsService(
-				clientDetailsService);
-		authenticationProvider.setUserDetailsService(clientUserDetailsService);
-		ProviderManager providerManager = new ProviderManager(
-				Arrays.<AuthenticationProvider> asList(authenticationProvider));
+		DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
+		provider.setUserDetailsService(new ClientDetailsUserDetailsService(
+				clientDetailsService));
 		clientCredentialsTokenEndpointFilter
-				.setAuthenticationManager(providerManager);
+				.setAuthenticationManager(new ProviderManager(Arrays
+						.<AuthenticationProvider> asList(provider)));
+		clientCredentialsTokenEndpointFilter.setAuthenticationEntryPoint(clientAuthenticationEntryPoint());
 		return clientCredentialsTokenEndpointFilter;
 	}
 
