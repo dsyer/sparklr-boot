@@ -3,6 +3,7 @@ package demo;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
@@ -13,16 +14,19 @@ import org.springframework.security.oauth2.config.annotation.web.configurers.OAu
 
 @ComponentScan
 @EnableAutoConfiguration
-@Order(Ordered.LOWEST_PRECEDENCE - 100)
-public class Application extends OAuth2AuthorizationServerConfigurerAdapter {
+public class Application {
 
 	public static void main(String[] args) {
 		SpringApplication.run(Application.class, args);
 	}
 
-	@Override
-	protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-		// @formatter:off
+	@Configuration
+	@Order(Ordered.LOWEST_PRECEDENCE - 100)
+	protected static class OAuth2Config extends OAuth2AuthorizationServerConfigurerAdapter {
+
+		@Override
+		protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+			// @formatter:off
 		 	auth.apply(new InMemoryClientDetailsServiceConfigurer())
 		        .withClient("my-trusted-client")
 		            .authorizedGrantTypes("password", "authorization_code", "refresh_token", "implicit")
@@ -36,11 +40,11 @@ public class Application extends OAuth2AuthorizationServerConfigurerAdapter {
 		            .scopes("read")
 		            .secret("secret");
 		// @formatter:on
-	}
-	
-	@Override
-	protected void configure(HttpSecurity http) throws Exception {
-		// @formatter:off
+		}
+
+		@Override
+		protected void configure(HttpSecurity http) throws Exception {
+			// @formatter:off
         http
             .authorizeRequests()
                 .antMatchers("/oauth/token").fullyAuthenticated()
@@ -50,6 +54,8 @@ public class Application extends OAuth2AuthorizationServerConfigurerAdapter {
                 .and()
             .apply(new OAuth2AuthorizationServerConfigurer());
     	// @formatter:on
+		}
+
 	}
-	
+
 }
