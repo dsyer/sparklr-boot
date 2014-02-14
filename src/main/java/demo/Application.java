@@ -7,10 +7,8 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
-import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.oauth2.config.annotation.authentication.configurers.InMemoryClientDetailsServiceConfigurer;
 import org.springframework.security.oauth2.config.annotation.web.configuration.OAuth2AuthorizationServerConfigurerAdapter;
-import org.springframework.security.oauth2.config.annotation.web.configurers.OAuth2AuthorizationServerConfigurer;
 
 @ComponentScan
 @EnableAutoConfiguration
@@ -40,20 +38,6 @@ public class Application {
 		            .scopes("read")
 		            .secret("secret");
 		// @formatter:on
-		}
-
-		@Override
-		protected void configure(HttpSecurity http) throws Exception {
-			// @formatter:off
-        http
-            .authorizeRequests()
-                .antMatchers("/oauth/token").fullyAuthenticated()
-                .and()
-            .requestMatchers()
-                .antMatchers("/oauth/token")
-                .and()
-            .apply(new OAuth2AuthorizationServerConfigurer());
-    	// @formatter:on
 		}
 
 	}
