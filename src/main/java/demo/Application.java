@@ -4,16 +4,45 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.oauth2.config.annotation.configurers.ClientDetailsServiceConfigurer;
 import org.springframework.security.oauth2.config.annotation.web.configuration.AuthorizationServerConfigurerAdapter;
 import org.springframework.security.oauth2.config.annotation.web.configuration.EnableAuthorizationServer;
+import org.springframework.security.oauth2.config.annotation.web.configuration.EnableResourceServer;
+import org.springframework.security.oauth2.config.annotation.web.configuration.ResourceServerConfigurerAdapter;
+import org.springframework.security.oauth2.config.annotation.web.configurers.OAuth2ResourceServerConfigurer;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
+@Configuration
 @ComponentScan
 @EnableAutoConfiguration
+@RestController
 public class Application {
 
 	public static void main(String[] args) {
 		SpringApplication.run(Application.class, args);
+	}
+
+	@RequestMapping("/")
+	public String home() {
+		return "Hello World";
+	}
+	
+	@Configuration
+	@EnableResourceServer
+	protected static class ResourceServer extends ResourceServerConfigurerAdapter {
+		
+		@Override
+		public void configure(HttpSecurity http) throws Exception {
+			http.antMatcher("/**").authorizeRequests().anyRequest().authenticated();
+		}
+		
+		@Override
+		public void configure(OAuth2ResourceServerConfigurer resources) throws Exception {
+			resources.resourceId("sparklr");
+		}
+		
 	}
 
 	@Configuration
@@ -28,12 +57,14 @@ public class Application {
 		            .authorizedGrantTypes("password", "authorization_code", "refresh_token", "implicit")
 		            .authorities("ROLE_CLIENT", "ROLE_TRUSTED_CLIENT")
 		            .scopes("read", "write", "trust")
+		            .resourceIds("sparklr")
 		            .accessTokenValiditySeconds(60)
  		    .and()
 		        .withClient("my-client-with-secret")
 		            .authorizedGrantTypes("client_credentials")
 		            .authorities("ROLE_CLIENT")
 		            .scopes("read")
+		            .resourceIds("sparklr")
 		            .secret("secret");
 		// @formatter:on
 		}
