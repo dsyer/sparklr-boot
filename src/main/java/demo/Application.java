@@ -1,15 +1,20 @@
 package demo;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.config.annotation.ObjectPostProcessor;
+import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.oauth2.config.annotation.configurers.ClientDetailsServiceConfigurer;
 import org.springframework.security.oauth2.config.annotation.web.configuration.AuthorizationServerConfigurerAdapter;
 import org.springframework.security.oauth2.config.annotation.web.configuration.EnableAuthorizationServer;
 import org.springframework.security.oauth2.config.annotation.web.configuration.EnableResourceServer;
 import org.springframework.security.oauth2.config.annotation.web.configuration.ResourceServerConfigurerAdapter;
+import org.springframework.security.oauth2.config.annotation.web.configurers.OAuth2AuthorizationServerConfigurer;
 import org.springframework.security.oauth2.config.annotation.web.configurers.OAuth2ResourceServerConfigurer;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -28,26 +33,37 @@ public class Application {
 	public String home() {
 		return "Hello World";
 	}
-	
+
 	@Configuration
 	@EnableResourceServer
 	protected static class ResourceServer extends ResourceServerConfigurerAdapter {
-		
+
 		@Override
 		public void configure(HttpSecurity http) throws Exception {
 			http.antMatcher("/**").authorizeRequests().anyRequest().authenticated();
 		}
-		
+
 		@Override
 		public void configure(OAuth2ResourceServerConfigurer resources) throws Exception {
 			resources.resourceId("sparklr");
 		}
-		
+
 	}
 
 	@Configuration
 	@EnableAuthorizationServer
 	protected static class OAuth2Config extends AuthorizationServerConfigurerAdapter {
+
+		@Autowired
+		private ObjectPostProcessor<Object> objectPostProcessor;
+
+		@Override
+		public void configure(OAuth2AuthorizationServerConfigurer oauthServer) throws Exception {
+			AuthenticationManager authenticationManager = new AuthenticationManagerBuilder(objectPostProcessor)
+					.inMemoryAuthentication().withUser("user").password("password").roles("USER").and().and()
+					.getOrBuild();
+			oauthServer.authenticationManager(authenticationManager);
+		}
 
 		@Override
 		public void configure(ClientDetailsServiceConfigurer clients) throws Exception {
