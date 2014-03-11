@@ -16,6 +16,7 @@ import org.springframework.security.oauth2.config.annotation.web.configuration.E
 import org.springframework.security.oauth2.config.annotation.web.configuration.ResourceServerConfigurerAdapter;
 import org.springframework.security.oauth2.config.annotation.web.configurers.OAuth2AuthorizationServerConfigurer;
 import org.springframework.security.oauth2.config.annotation.web.configurers.OAuth2ResourceServerConfigurer;
+import org.springframework.security.oauth2.provider.expression.OAuth2WebSecurityExpressionHandler;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -40,7 +41,13 @@ public class Application {
 
 		@Override
 		public void configure(HttpSecurity http) throws Exception {
-			http.antMatcher("/**").authorizeRequests().anyRequest().authenticated();
+			// @formatter:off
+			http
+				.antMatcher("/admin/**")
+					.authorizeRequests()
+					.expressionHandler(new OAuth2WebSecurityExpressionHandler())
+					.anyRequest().access("#oauth2.hasScope('read')");
+			// @formatter:on
 		}
 
 		@Override
@@ -76,8 +83,15 @@ public class Application {
 		            .resourceIds("sparklr")
 		            .accessTokenValiditySeconds(60)
  		    .and()
+		        .withClient("my-client-with-registered-redirect")
+		            .authorizedGrantTypes("authorization_code")
+		            .authorities("ROLE_CLIENT")
+		            .scopes("read", "trust")
+		            .resourceIds("sparklr")
+		            .redirectUris("http://anywhere?key=value")
+ 		    .and()
 		        .withClient("my-client-with-secret")
-		            .authorizedGrantTypes("client_credentials")
+		            .authorizedGrantTypes("client_credentials", "password")
 		            .authorities("ROLE_CLIENT")
 		            .scopes("read")
 		            .resourceIds("sparklr")
