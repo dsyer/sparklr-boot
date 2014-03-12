@@ -146,16 +146,6 @@ public class AuthorizationCodeProviderTests {
 	}
 
 	@Test
-	public void testResourceIsProtected() throws Exception {
-		// first make sure the resource is actually protected.
-		assertEquals(HttpStatus.UNAUTHORIZED, serverRunning.getStatusCode("/admin/beans"));
-		ResponseEntity<String> response = serverRunning.getForString("/");
-		assertEquals(HttpStatus.UNAUTHORIZED, response.getStatusCode());
-		assertTrue("Wrong header: " + response.getHeaders(), response.getHeaders().getFirst("WWW-Authenticate")
-				.startsWith("Bearer realm="));
-	}
-
-	@Test
 	@OAuth2ContextConfiguration(resource = MyTrustedClient.class, initialize = false)
 	public void testUnauthenticatedAuthorizationRespondsUnauthorized() throws Exception {
 

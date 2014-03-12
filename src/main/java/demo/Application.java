@@ -16,7 +16,6 @@ import org.springframework.security.oauth2.config.annotation.web.configuration.E
 import org.springframework.security.oauth2.config.annotation.web.configuration.ResourceServerConfigurerAdapter;
 import org.springframework.security.oauth2.config.annotation.web.configurers.OAuth2AuthorizationServerConfigurer;
 import org.springframework.security.oauth2.config.annotation.web.configurers.OAuth2ResourceServerConfigurer;
-import org.springframework.security.oauth2.provider.expression.OAuth2WebSecurityExpressionHandler;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -43,12 +42,9 @@ public class Application {
 		public void configure(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.requestMatchers()
-					.antMatchers("/", "/admin/**")
-				.and()
-					.authorizeRequests()
-					.expressionHandler(new OAuth2WebSecurityExpressionHandler())
-					.anyRequest().access("#oauth2.hasScope('read')");
+				.requestMatchers().antMatchers("/","/admin/beans").and()
+				.authorizeRequests()
+				.anyRequest().access("#oauth2.hasScope('read')");
 			// @formatter:on
 		}
 
