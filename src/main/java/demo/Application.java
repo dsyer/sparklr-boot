@@ -43,7 +43,9 @@ public class Application {
 		public void configure(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.antMatcher("/admin/**")
+				.requestMatchers()
+					.antMatchers("/", "/admin/**")
+				.and()
 					.authorizeRequests()
 					.expressionHandler(new OAuth2WebSecurityExpressionHandler())
 					.anyRequest().access("#oauth2.hasScope('read')");
