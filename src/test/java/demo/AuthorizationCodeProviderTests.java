@@ -23,12 +23,9 @@ import java.io.IOException;
 import java.util.Arrays;
 
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.springframework.aop.framework.Advised;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.IntegrationTest;
 import org.springframework.boot.test.SpringApplicationConfiguration;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -40,7 +37,6 @@ import org.springframework.security.oauth2.client.resource.UserApprovalRequiredE
 import org.springframework.security.oauth2.client.resource.UserRedirectRequiredException;
 import org.springframework.security.oauth2.client.test.BeforeOAuth2Context;
 import org.springframework.security.oauth2.client.test.OAuth2ContextConfiguration;
-import org.springframework.security.oauth2.client.test.OAuth2ContextSetup;
 import org.springframework.security.oauth2.client.token.AccessTokenRequest;
 import org.springframework.security.oauth2.client.token.grant.code.AuthorizationCodeAccessTokenProvider;
 import org.springframework.security.oauth2.client.token.grant.code.AuthorizationCodeResourceDetails;
@@ -49,8 +45,6 @@ import org.springframework.security.oauth2.common.exceptions.RedirectMismatchExc
 import org.springframework.security.oauth2.common.util.OAuth2Utils;
 import org.springframework.security.oauth2.provider.token.InMemoryTokenStore;
 import org.springframework.security.oauth2.provider.token.TokenStore;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.web.client.DefaultResponseErrorHandler;
 import org.springframework.web.client.HttpClientErrorException;
@@ -65,19 +59,10 @@ import demo.ServerRunning.UriBuilder;
  * @author Luke Taylor
  */
 @SpringApplicationConfiguration(classes = Application.class)
-@RunWith(SpringJUnit4ClassRunner.class)
-@WebAppConfiguration
-@IntegrationTest
-public class AuthorizationCodeProviderTests {
+public class AuthorizationCodeProviderTests extends AbstractIntegrationTests {
 
 	@Autowired
 	private TokenStore tokenStore;
-
-	@Rule
-	public ServerRunning serverRunning = ServerRunning.isRunning();
-
-	@Rule
-	public OAuth2ContextSetup context = OAuth2ContextSetup.standard(serverRunning);
 
 	private AuthorizationCodeAccessTokenProvider accessTokenProvider;
 

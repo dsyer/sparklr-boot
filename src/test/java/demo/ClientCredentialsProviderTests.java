@@ -9,22 +9,16 @@ import static org.junit.Assert.fail;
 import java.io.IOException;
 import java.util.Arrays;
 
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.springframework.boot.test.IntegrationTest;
 import org.springframework.boot.test.SpringApplicationConfiguration;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.client.ClientHttpResponse;
 import org.springframework.security.oauth2.client.test.OAuth2ContextConfiguration;
-import org.springframework.security.oauth2.client.test.OAuth2ContextSetup;
 import org.springframework.security.oauth2.client.token.grant.client.ClientCredentialsAccessTokenProvider;
 import org.springframework.security.oauth2.client.token.grant.client.ClientCredentialsResourceDetails;
 import org.springframework.security.oauth2.common.AuthenticationScheme;
 import org.springframework.security.oauth2.common.OAuth2AccessToken;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.web.client.DefaultResponseErrorHandler;
 import org.springframework.web.client.ResponseErrorHandler;
 
@@ -33,17 +27,8 @@ import org.springframework.web.client.ResponseErrorHandler;
  * @author Dave Syer
  */
 @SpringApplicationConfiguration(classes=Application.class)
-@RunWith(SpringJUnit4ClassRunner.class)
-@WebAppConfiguration
-@IntegrationTest
-public class ClientCredentialsProviderTests {
+public class ClientCredentialsProviderTests extends AbstractIntegrationTests {
 
-	@Rule
-	public ServerRunning serverRunning = ServerRunning.isRunning();
-
-	@Rule
-	public OAuth2ContextSetup context = OAuth2ContextSetup.standard(serverRunning);
-	
 	private ClientCredentialsResourceDetails resource;
 
 	private HttpHeaders responseHeaders;

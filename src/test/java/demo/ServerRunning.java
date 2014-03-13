@@ -104,7 +104,9 @@ public class ServerRunning implements MethodRule, RestTemplateHolder {
 		if (!serverOnline.containsKey(port)) {
 			serverOnline.put(port, true);
 		}
-		client = createRestTemplate();
+		if (client==null) {
+			client = createRestTemplate();
+		}
 	}
 
 	/**

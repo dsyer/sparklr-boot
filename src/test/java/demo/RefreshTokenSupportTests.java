@@ -7,18 +7,13 @@ import static org.junit.Assert.assertTrue;
 
 import java.util.Map;
 
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.springframework.boot.test.IntegrationTest;
 import org.springframework.boot.test.SpringApplicationConfiguration;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.oauth2.common.DefaultOAuth2AccessToken;
 import org.springframework.security.oauth2.common.OAuth2AccessToken;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 
@@ -27,13 +22,7 @@ import org.springframework.util.MultiValueMap;
  * @author Dave Syer
  */
 @SpringApplicationConfiguration(classes=Application.class)
-@RunWith(SpringJUnit4ClassRunner.class)
-@WebAppConfiguration
-@IntegrationTest
-public class RefreshTokenSupportTests {
-
-	@Rule
-	public ServerRunning serverRunning = ServerRunning.isRunning();
+public class RefreshTokenSupportTests extends AbstractIntegrationTests {
 
 	/**
 	 * tests a happy-day flow of the refresh token provider.
