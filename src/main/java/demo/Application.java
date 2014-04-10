@@ -12,8 +12,8 @@ import org.springframework.security.oauth2.config.annotation.web.configuration.A
 import org.springframework.security.oauth2.config.annotation.web.configuration.EnableAuthorizationServer;
 import org.springframework.security.oauth2.config.annotation.web.configuration.EnableResourceServer;
 import org.springframework.security.oauth2.config.annotation.web.configuration.ResourceServerConfigurerAdapter;
-import org.springframework.security.oauth2.config.annotation.web.configurers.OAuth2AuthorizationServerConfigurer;
-import org.springframework.security.oauth2.config.annotation.web.configurers.OAuth2ResourceServerConfigurer;
+import org.springframework.security.oauth2.config.annotation.web.configurers.AuthorizationServerSecurityConfigurer;
+import org.springframework.security.oauth2.config.annotation.web.configurers.ResourceServerSecurityConfigurer;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -48,7 +48,7 @@ public class Application {
 		}
 
 		@Override
-		public void configure(OAuth2ResourceServerConfigurer resources) throws Exception {
+		public void configure(ResourceServerSecurityConfigurer resources) throws Exception {
 			resources.resourceId("sparklr");
 		}
 
@@ -62,7 +62,7 @@ public class Application {
 		private AuthenticationManager authenticationManager;
 
 		@Override
-		public void configure(OAuth2AuthorizationServerConfigurer oauthServer) throws Exception {
+		public void configure(AuthorizationServerSecurityConfigurer oauthServer) throws Exception {
 			oauthServer.authenticationManager(authenticationManager);
 		}
 

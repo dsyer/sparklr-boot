@@ -24,7 +24,6 @@ import java.util.Arrays;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.springframework.aop.framework.Advised;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.SpringApplicationConfiguration;
 import org.springframework.http.HttpHeaders;
@@ -41,6 +40,7 @@ import org.springframework.security.oauth2.client.token.AccessTokenRequest;
 import org.springframework.security.oauth2.client.token.grant.code.AuthorizationCodeAccessTokenProvider;
 import org.springframework.security.oauth2.client.token.grant.code.AuthorizationCodeResourceDetails;
 import org.springframework.security.oauth2.common.OAuth2AccessToken;
+import org.springframework.security.oauth2.common.exceptions.InsufficientScopeException;
 import org.springframework.security.oauth2.common.exceptions.RedirectMismatchException;
 import org.springframework.security.oauth2.common.util.OAuth2Utils;
 import org.springframework.security.oauth2.provider.token.InMemoryTokenStore;
@@ -70,7 +70,7 @@ public class AuthorizationCodeProviderTests extends AbstractIntegrationTests {
 
 	@Before
 	public void init() throws Exception {
-		((InMemoryTokenStore) ((Advised) tokenStore).getTargetSource().getTarget()).clear();
+		((InMemoryTokenStore) tokenStore).clear();
 	}
 
 	@BeforeOAuth2Context
@@ -288,8 +288,8 @@ public class AuthorizationCodeProviderTests extends AbstractIntegrationTests {
 			serverRunning.getForString("/admin/beans");
 			fail("Should have thrown exception");
 		}
-		catch (HttpClientErrorException ex) {
-			assertEquals(HttpStatus.FORBIDDEN, ex.getStatusCode());
+		catch (InsufficientScopeException ex) {
+			assertTrue("Wrong summary: " + ex, ex.getSummary().contains("scope=\"read"));
 		}
 	}
 
