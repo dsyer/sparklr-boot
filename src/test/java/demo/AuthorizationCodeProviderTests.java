@@ -22,9 +22,7 @@ import static org.junit.Assert.fail;
 import java.io.IOException;
 import java.util.Arrays;
 
-import org.junit.Before;
 import org.junit.Test;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.SpringApplicationConfiguration;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -43,8 +41,6 @@ import org.springframework.security.oauth2.common.OAuth2AccessToken;
 import org.springframework.security.oauth2.common.exceptions.InsufficientScopeException;
 import org.springframework.security.oauth2.common.exceptions.RedirectMismatchException;
 import org.springframework.security.oauth2.common.util.OAuth2Utils;
-import org.springframework.security.oauth2.provider.token.TokenStore;
-import org.springframework.security.oauth2.provider.token.store.InMemoryTokenStore;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.web.client.DefaultResponseErrorHandler;
 import org.springframework.web.client.HttpClientErrorException;
@@ -61,17 +57,9 @@ import demo.ServerRunning.UriBuilder;
 @SpringApplicationConfiguration(classes = Application.class)
 public class AuthorizationCodeProviderTests extends AbstractIntegrationTests {
 
-	@Autowired
-	private TokenStore tokenStore;
-
 	private AuthorizationCodeAccessTokenProvider accessTokenProvider;
 
 	private ClientHttpResponse tokenEndpointResponse;
-
-	@Before
-	public void init() throws Exception {
-		((InMemoryTokenStore) tokenStore).clear();
-	}
 
 	@BeforeOAuth2Context
 	public void setupAccessTokenProvider() {
@@ -414,9 +402,6 @@ public class AuthorizationCodeProviderTests extends AbstractIntegrationTests {
 			setClientId("my-trusted-client");
 			setScope(Arrays.asList("read"));
 			setId(getClientId());
-			AuthorizationCodeProviderTests test = (AuthorizationCodeProviderTests) target;
-			setAccessTokenUri(test.serverRunning.getUrl("/oauth/token"));
-			setUserAuthorizationUri(test.serverRunning.getUrl("/oauth/authorize"));
 		}
 	}
 
